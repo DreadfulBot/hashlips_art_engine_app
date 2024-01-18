@@ -1,25 +1,64 @@
+import Table from 'cli-table';
+import { useMemo } from "react";
 import Canvas from "./Canvas";
 import "./Main.css";
 
-function Main(props) {
+function Main(p) {
+  const raritiesOutput = useMemo(() => {
+    const itemsTable = new Table({
+      head: ['Item', 'Id', 'RarityRank', 'RarityLabel'],
+      colWidths: [30, 20, 20, 20]
+    });
+
+
+    p.rarities.items.forEach((rarityScore) => {
+      itemsTable.push([
+        rarityScore.element.name,
+        rarityScore.element.edition,
+        rarityScore.score,
+        rarityScore.nextItem.rarity
+      ])
+    })
+
+    itemsTable.sort((a, b) => (a[2] > b[2]) ? -1 : 1)
+
+    const raritiesTable = new Table({
+      head: ['Label', 'Items amount', 'Range'],
+      colWidths: [30, 20, 50]
+    });
+
+    Object.entries(p.rarities.groups).forEach(([rarityLabel, rarityGroup]) => {
+      raritiesTable.push([
+        rarityLabel,
+        rarityGroup.length,
+        p.rarities.ranges[rarityLabel].join('...'),
+      ])
+    })
+
+    raritiesTable.sort((a, b) => (a[1] > b[1]) ? 1 : -1)
+    
+    return itemsTable.toString() + '\n\n' + raritiesTable.toString()
+
+  }, [p.rarities])
+
   return (
     <main className="main">
       <div className="main_info">
-        <p>Supply: {props.config.supply}</p>
-        <p>Name: {props.config.name}</p>
-        <p>Symbol: {props.config.symbol}</p>
-        <p>Description: {props.config.description}</p>
+        <p>Supply: {p.config.supply}</p>
+        <p>Name: {p.config.name}</p>
+        <p>Symbol: {p.config.symbol}</p>
+        <p>Description: {p.config.description}</p>
       </div>
       <div className="main_cards">
         <div className="card">
-          <Canvas folderNames={props.folderNames} />
+          <Canvas folderNames={p.folderNames} />
         </div>
         <div className="card">
           <p className="card_tree_title">Tree</p>
-          {props.folderNames.length > 0 ? (
-            props.folderNames.map((item, index) => {
+          {p.folderNames.length > 0 ? (
+            p.folderNames.map((item, index) => {
               return (
-                <div key={index}>
+                <div key={`folderName-${index}`}>
                   <p className="card_tree_item">{item.name}</p>
                   {item.elements.map((element) => {
                     return (
@@ -41,7 +80,7 @@ function Main(props) {
       </div>
       <div className="log_info">
         <p className="log_info_title">
-          Progress: {props.progress}/{props.config.supply}
+          Progress: {p.progress}/{p.config.supply}
         </p>
         <progress
           style={{
@@ -50,15 +89,30 @@ function Main(props) {
             marginTop: 5,
             backgroundColor: "lightGreen",
           }}
-          value={props.progress}
-          max={props.config.supply}
+          value={p.progress}
+          max={p.config.supply}
         ></progress>
         <p className="log_info_title">Status:</p>
         <p
           className="log_info_text"
-          style={{ color: props.status ? "red" : "lightGreen" }}
+          style={{ color: p.status ? "red" : "lightGreen" }}
         >
-          {props.status != "" ? props.status : "Everything look good"}
+          {p.status !== "" ? p.status : "Everything look good"}
+        </p>
+      </div>
+
+      <div className="log_info">
+        <p className="log_info_title">
+          Rarities output
+        </p>
+
+        <p
+          className="log_info_text"
+          style={{ color: p.status ? "red" : "lightGreen", fontSize: 12 }}
+        >
+          <pre>
+            {raritiesOutput}
+          </pre>
         </p>
       </div>
     </main>

@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
-const Canvas = (props) => {
+const Canvas = ({ folderNames, ...etc}) => {
   const canvasRef = useRef(null);
 
   const loadImage = (url) => {
@@ -22,15 +22,15 @@ const Canvas = (props) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    let renderImages = props.folderNames.map((i) => {
+    let renderImages = folderNames.map((i) => {
       return encodeURI("file://" + i.elements[0].path);
     });
 
     ctx.clearRect(0, 0, 300, 300);
     updateCanvas(ctx, renderImages);
-  }, [props.folderNames]);
+  }, [folderNames]);
 
-  return <canvas ref={canvasRef} {...props} width={300} height={300} />;
+  return <canvas ref={canvasRef} {...etc} width={300} height={300} />;
 };
 
 export default Canvas;

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Header from "./components/Header";
-import Aside from "./components/Aside";
-import Main from "./components/Main";
-import Footer from "./components/Footer";
 import "./App.css";
+import Aside from "./components/Aside";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import Main from "./components/Main";
 
 const { app } = window.require("@electron/remote");
 const fs = window.require("fs");
@@ -24,6 +24,14 @@ function App() {
   });
   const [folderNames, setFolderNames] = useState([]);
   const [progress, setProgress] = useState(0);
+
+  const [rarities, setRarities] = useState({
+    items: [],
+    groups: {},
+    ranges: {},
+    saved: false
+  });
+
   const [status, setStatus] = useState("");
 
   const handleConfigChange = (event) => {
@@ -91,8 +99,6 @@ function App() {
     });
   };
 
-  console.log(status);
-
   useEffect(() => {
     setStatus("");
   }, [config, folderNames]);
@@ -107,16 +113,20 @@ function App() {
         setConfig={setConfig}
         handleConfigChange={handleConfigChange}
         getFolders={getFolders}
+        getElements={getElements}
         folderNames={folderNames}
         setFolderNames={setFolderNames}
         setProgress={setProgress}
         setStatus={setStatus}
+        setRarities={setRarities}
+        rarities={rarities}
       />
       <Main
         config={config}
         folderNames={folderNames}
         progress={progress}
         status={status}
+        rarities={rarities}
       />
       <Footer />
     </div>
