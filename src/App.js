@@ -35,9 +35,7 @@ function App() {
   const [status, setStatus] = useState("");
 
   const handleConfigChange = (event) => {
-    console.log(event.target.name);
     setConfig({ ...config, [event.target.name]: event.target.value });
-    console.log(config);
   };
 
   const toggleSideBar = () => {

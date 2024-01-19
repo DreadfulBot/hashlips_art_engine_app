@@ -10,7 +10,6 @@ function Main(p) {
       colWidths: [30, 20, 20, 20]
     });
 
-
     p.rarities.items.forEach((rarityScore) => {
       itemsTable.push([
         rarityScore.element.name,
@@ -26,6 +25,7 @@ function Main(p) {
       head: ['Label', 'Items amount', 'Range'],
       colWidths: [30, 20, 50]
     });
+
 
     Object.entries(p.rarities.groups).forEach(([rarityLabel, rarityGroup]) => {
       raritiesTable.push([

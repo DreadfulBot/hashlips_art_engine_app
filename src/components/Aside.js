@@ -156,7 +156,6 @@ function Aside(p) {
     try {
       return new Promise(async (resolve) => {
         const path = `file://${_layer.selectedElement.path.replace(/\s/g, "%20")}`;
-        console.log({ path });
         const image = await loadImage(path);
         resolve({ layer: _layer, loadedImage: image });
       });
@@ -285,6 +284,7 @@ function Aside(p) {
     let rawdata = fs.readFileSync(
       path.join(p.config.outputPath, "build", "json", `_metadata.json`)
     );
+
     let data = JSON.parse(rawdata);
 
     data.forEach((item) => {
@@ -334,6 +334,12 @@ function Aside(p) {
 
   const calculateRarities = () => {
     try {
+
+      if (p.rarities.saved) {
+        alert('Old rarities going to be removed from json\'s. Please, call again "Set Json Rarities" when finished')
+        setJsonRarities(false)
+      }
+
       const metaJson = path.join(
         p.config.outputPath,
         'build',
@@ -344,7 +350,10 @@ function Aside(p) {
       const rawData = fs.readFileSync(metaJson, 'utf8')
       const data = JSON.parse(rawData)
 
-      const rarityRanges = p.config.rarity.split('\n').reduce((r, line) => {
+      let rarity = p.config.rarity ?? ''
+      rarity += '\nUnknown,0,100'
+
+      const rarityRanges = rarity.split('\n').reduce((r, line) => {
         const [label, start, end] = line.split(',')
         r[label] = [parseInt(start), parseInt(end)]
         return r
@@ -373,21 +382,35 @@ function Aside(p) {
     }
   }
 
-  const setJsonRarities = () => {
+  const setJsonRarities = (value = true) => {
     try {
+      const metaJson = path.join(
+        p.config.outputPath,
+        'build',
+        'json',
+        '_metadata.json'
+      )
+
       p.rarities.items.forEach((element) => {
-        console.log({element});
         fs.writeFileSync(
           path.join(p.config.outputPath, "build", "json", `${element.element.edition}.json`),
-          JSON.stringify(element.nextItem, null, 2)
+          JSON.stringify(value ? element.nextItem : element.element, null, 2)
         )
       })
 
+      const nextItems = p.rarities.items.map(x => value ? x.nextItem : x.element)
+
+      fs.writeFileSync(
+        metaJson,
+        JSON.stringify(nextItems)
+      )
+
       p.setRarities(x => ({
         ...x,
-        saved: true
+        saved: value
       }))
 
+      alert('JSON files has been updated')
     } catch (error) {
       alert(error.message)
     }
@@ -475,9 +498,13 @@ function Aside(p) {
           {textArea("Rarity Ranges", "rarity", p.config.rarity, "label,start,end\n")}
 
           <button className="aside_list_item_button" onClick={calculateRarities}>
-            Calculate rarities
+            Calculate scores and rarities
           </button>
-          <button className="aside_list_item_button" onClick={setJsonRarities}>Set JSON Rarities{p.rarities.saved ? ' (Saved)' : ''}</button>
+
+          <button className="aside_list_item_button" onClick={() => setJsonRarities(!p.rarities.saved)}>
+            {!p.rarities.saved ? 'Set JSON Rarities' : 'Remove JSON Rarities'}
+          </button>
+
           {input("IPFS", "baseUri", p.config.baseUri)}
           <button
             className="aside_list_item_button"

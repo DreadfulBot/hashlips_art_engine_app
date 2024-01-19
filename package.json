@@ -20,7 +20,7 @@
     "web-vitals": "^2.1.4"
   },
   "main": "public/electron.js",
-  "homepage": "roxl.net",
+  "homepage": "./",
   "author": "HashLips, DreafgulBot",
   "scripts": {
     "start": "react-scripts start",
